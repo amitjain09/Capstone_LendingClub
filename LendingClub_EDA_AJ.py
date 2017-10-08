@@ -21,7 +21,6 @@ ds = pd.concat([ds2016q1, ds2016q2, ds2016q3, ds2016q4, ds2017q1], axis=0)
 
 del ds2016q1, ds2016q2, ds2016q3, ds2016q4, ds2017q1
 
-
 #####################
 ## Dataset Cleaning - Start
 #####################
@@ -90,12 +89,59 @@ ds.dropna(subset=['inq_last_6mths'], inplace = True)
 
 # Finding Null values
 len(ds[(pd.isnull(ds['mths_since_last_delinq']) == True)])  ## This one works
+# Fill any null values with some valid values. In this case mean of all the values in that column
+ds['mths_since_last_delinq'].fillna(value = ds['mths_since_last_delinq'].mean(), inplace=True)
 
-## upto mths_since_last_delinq
+# Fill null values in column mths_since_last_record with some valid values. In this case mean of all the values in that column
+ds['mths_since_last_record'].fillna(value = ds['mths_since_last_record'].mean(), inplace=True)
+
+# Delete rows where revol_util column contains null. There are 315 rows and I can't find how to impute missing data so removed.
+ds.dropna(subset=['revol_util'], inplace = True)
+
+# Fill null values in column mths_since_last_major_derog with some valid values. In this case mean of all the values in that column as loan_status wise means are quite similar, no significant diff found
+ds['mths_since_last_major_derog'].fillna(value = ds['mths_since_last_major_derog'].mean(), inplace=True)
+
+# Fill null values in column mths_since_rcnt_il with some valid values. In this case mean of all the values in that column
+ds['mths_since_rcnt_il'].fillna(value = int(ds['mths_since_rcnt_il'].mean()), inplace=True)
+
+# Fill null values in column il_util with some valid values. In this case mean of all the values in that column
+ds['il_util'].fillna(value = ds['il_util'].mean(), inplace=True)
+
+# Fill null values in column all_util with some valid values. In this case mean of all the values in that column
+ds['all_util'].fillna(value = ds['all_util'].mean(), inplace=True)
+
+# Fill null values in column bc_open_to_buy with some valid values. In this case mean of all the values in that column
+ds['bc_open_to_buy'].fillna(value = ds['bc_open_to_buy'].mean(), inplace=True)
+
+# Fill null values in column bc_util with some valid values. In this case mean of all the values in that column
+ds['bc_util'].fillna(value = ds['bc_util'].mean(), inplace=True)
+
+# Fill null values in column mo_sin_old_il_acct with some valid values. In this case mean of all the values in that column
+ds['mo_sin_old_il_acct'].fillna(value = int(ds['mo_sin_old_il_acct'].mean()), inplace=True)
+
+# Fill null values in column mths_since_recent_bc with some valid values. In this case mean of all the values in that column
+ds['mths_since_recent_bc'].fillna(value = int(ds['mths_since_recent_bc'].mean()), inplace=True)
+
+# Fill null values in column mths_since_recent_bc_dlq with some valid values. In this case mean of all the values in that column
+ds['mths_since_recent_bc_dlq'].fillna(value = int(ds['mths_since_recent_bc_dlq'].mean()), inplace=True)
+
+# Fill null values in column mths_since_recent_inq with some valid values. In this case mean of all the values in that column
+ds['mths_since_recent_inq'].fillna(value = int(ds['mths_since_recent_inq'].mean()), inplace=True)
+
+# Fill null values in column mths_since_recent_revol_delinq with some valid values. In this case mean of all the values in that column
+ds['mths_since_recent_revol_delinq'].fillna(value = int(ds['mths_since_recent_revol_delinq'].mean()), inplace=True)
+
+# Fill null values in column num_tl_120dpd_2m with some valid values. In this case mean of all the values in that column
+ds['num_tl_120dpd_2m'].fillna(value = int(ds['num_tl_120dpd_2m'].mean()), inplace=True)
+
+# Fill null values in column percent_bc_gt_75 with some valid values. In this case mean of all the values in that column
+ds['percent_bc_gt_75'].fillna(value = ds['percent_bc_gt_75'].mean(), inplace=True)
 
 ## ===================================================================
 
-
+## Some More Data Cleaning 
+# Removed % symbol from int_rate so that it can be used for sorting and binning properly
+ds['int_rate'] = ds['int_rate'].apply(lambda numval: float(numval.strip('%')))
 
 sds = ds[9000:90000:]  ## This is just the temp dataset. This is required to play around as the 
 ## main dataset is too huge to load
@@ -103,6 +149,35 @@ sds = ds[9000:90000:]  ## This is just the temp dataset. This is required to pla
 #####################
 ## Dataset Cleaning - End
 #####################
+
+
+#####################
+## Preliminary Data Analysis starts here 
+#####################
+##==============================================================================
+
+##ds.count()
+
+alpha_color = .5
+
+ds['term'].value_counts().plot(kind='bar', color = ['b', 'r'], alpha = alpha_color)
+
+ds['int_rate'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
+## Int_rate vary from 3 - 35
+intratebin = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36]
+## Add a new column IntRateBin to the dataset to better analize the distribution vis a vis Interest Rates.
+ds['IntRateBin'] = pd.cut(ds['int_rate'], intratebin)
+
+ds['IntRateBin'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
+
+ds['grade'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
+
+
+##==============================================================================
+#####################
+## Preliminary Data Analysis - End
+#####################
+
 
 
 
