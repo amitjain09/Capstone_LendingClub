@@ -21,6 +21,7 @@ ds = pd.concat([ds2016q1, ds2016q2, ds2016q3, ds2016q4, ds2017q1], axis=0)
 
 del ds2016q1, ds2016q2, ds2016q3, ds2016q4, ds2017q1
 
+
 #####################
 ## Dataset Cleaning - Start
 #####################
@@ -160,16 +161,33 @@ sds = ds[9000:90000:]  ## This is just the temp dataset. This is required to pla
 
 alpha_color = .5
 
+#Distribution of Loan Terms
 ds['term'].value_counts().plot(kind='bar', color = ['b', 'r'], alpha = alpha_color)
 
-ds['int_rate'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
-## Int_rate vary from 3 - 35
+#Distribution of Loan Status
+ds['loan_status'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color, label = 'Loan Status Distribution')
+
+#Distribution of Interest Rates - Scatter Plot
+ds['int_rate'].value_counts().sort_index().plot(kind='scatter', alpha = alpha_color)
+ds.plot(kind = 'scatter', x='int_rate', y='loan_amnt')
+
+## Int_rate vary from 3 - 35. Create a Bin with a 3 unit difference
 intratebin = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36]
 ## Add a new column IntRateBin to the dataset to better analize the distribution vis a vis Interest Rates.
 ds['IntRateBin'] = pd.cut(ds['int_rate'], intratebin)
 
+#Distribution of Interest Rates
 ds['IntRateBin'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
 
+
+
+#Distribution of Interest Rates for non-Active loans
+ds[(ds['loan_status'] <> 'Current') & (ds['loan_status'] <> 'Fully Paid')]['IntRateBin'].value_counts().sort_index().plot(kind = 'bar')
+
+
+
+##dataset[(dataset['Survived']==1) & (dataset['Sex']=='male')]['Agebin'].value_counts().sort_index().plot(kind = 'bar')
+#Distribution of Grades
 ds['grade'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
 
 
@@ -177,8 +195,5 @@ ds['grade'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
 #####################
 ## Preliminary Data Analysis - End
 #####################
-
-
-
 
 
