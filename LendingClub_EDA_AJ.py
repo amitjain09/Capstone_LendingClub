@@ -144,6 +144,26 @@ ds['percent_bc_gt_75'].fillna(value = ds['percent_bc_gt_75'].mean(), inplace=Tru
 # Removed % symbol from int_rate so that it can be used for sorting and binning properly
 ds['int_rate'] = ds['int_rate'].apply(lambda numval: float(numval.strip('%')))
 
+#Encoding Ordinal data into orderd Numeric data
+sub_gradedic = [  'A1', 'A2', 'A3', 'A4', 'A5'
+                , 'B1', 'B2', 'B3', 'B4', 'B5'
+                , 'C1', 'C2', 'C3', 'C4', 'C5'
+                , 'D1', 'D2', 'D3', 'D4', 'D5'
+                , 'E1', 'E2', 'E3', 'E4', 'E5'
+                , 'F1', 'F2', 'F3', 'F4', 'F5'
+                , 'G1', 'G2', 'G3', 'G4', 'G5'
+                ]
+sub_gradenum = [  1.1, 1.2, 1.3, 1.4, 1.5
+                , 2.1, 2.2, 2.3, 2.4, 2.5
+                , 3.1, 3.2, 3.3, 3.4, 3.5
+                , 4.1, 4.2, 4.3, 4.4, 4.5
+                , 5.1, 5.2, 5.3, 5.4, 5.5
+                , 6.1, 6.2, 6.3, 6.4, 6.5
+                , 7.1, 7.2, 7.3, 7.4, 7.5
+                ]
+
+ds['sub_grade'].replace(sub_gradedic, sub_gradenum, inplace = True)
+
 sds = ds[9000:90000:]  ## This is just the temp dataset. This is required to play around as the 
 ## main dataset is too huge to load
 
@@ -165,10 +185,10 @@ alpha_color = .5
 ds['term'].value_counts().plot(kind='bar', color = ['b', 'r'], alpha = alpha_color)
 
 #Distribution of Loan Status
-ds['loan_status'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color, label = 'Loan Status Distribution')
+ds['loan_status'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
 
 #Distribution of Interest Rates - Scatter Plot
-ds['int_rate'].value_counts().sort_index().plot(kind='scatter', alpha = alpha_color)
+##ds['int_rate'].value_counts().sort_index().plot(kind='scatter', alpha = alpha_color)
 ds.plot(kind = 'scatter', x='int_rate', y='loan_amnt')
 
 ## Int_rate vary from 3 - 35. Create a Bin with a 3 unit difference
@@ -179,21 +199,31 @@ ds['IntRateBin'] = pd.cut(ds['int_rate'], intratebin)
 #Distribution of Interest Rates
 ds['IntRateBin'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
 
-
-
 #Distribution of Interest Rates for non-Active loans
 ds[(ds['loan_status'] <> 'Current') & (ds['loan_status'] <> 'Fully Paid')]['IntRateBin'].value_counts().sort_index().plot(kind = 'bar')
-
-
 
 ##dataset[(dataset['Survived']==1) & (dataset['Sex']=='male')]['Agebin'].value_counts().sort_index().plot(kind = 'bar')
 #Distribution of Grades
 ds['grade'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
 
+## checking correlation between selected variables
+ds[['sub_grade', 'int_rate']].corr()
+
+# Distribution of sub_Grade Vs Interest Rates
+ds.plot(kind = 'scatter', x='sub_grade', y='int_rate')
+
+#Distribution of Home Ownership of Loan Applicants
+ds['home_ownership'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
+
+#Distribution of Loan Purpose
+ds['purpose'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
+
+#Distribution of Loan Purpose
+ds['addr_state'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
 
 ##==============================================================================
 #####################
 ## Preliminary Data Analysis - End
 #####################
 
-
+sds.head()
