@@ -183,6 +183,8 @@ alpha_color = .5
 
 #Distribution of Loan Terms
 ds['term'].value_counts().plot(kind='bar', color = ['b', 'r'], alpha = alpha_color)
+# in %
+(ds['term'].value_counts() * 100/len(ds)).plot(kind='bar', color = ['b', 'r'], alpha = alpha_color)
 
 #Distribution of Loan Status
 ds['loan_status'].value_counts().sort_index().plot(kind='bar', alpha = alpha_color)
